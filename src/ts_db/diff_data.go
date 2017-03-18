@@ -3,7 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"sort"
+	//"sort"
+	"log"
 	"strings"
 	"time"
 )
@@ -57,6 +58,43 @@ func (self *DiffData) rebuildTextsToDiffN(n int) (string, error) {
 	return "", fmt.Errorf("Could not rebuild from diffs")
 }
 
+func (self *DiffData) Update(newText string) {
+	dmp := diffmatchpatch.New()
+	diffs := dmp.DiffMain(self.CurrentText, newText, true)
+	delta := dmp.DiffToDelta(diffs)
+	self.CurrentText = newText
+	//self.Timestamps = append(self.Timestamps, time.Now().Format(time.ANSIC))
+	self.Timestamps = append(self.Timestamps, time.Now().UnixNano())
+	self.Diffs = append(self.Diffs, delta)
+	self.Title = strings.ToLower(self.Title)
+}
+
+func (self *DiffData) GetCurrent() string {
+	return self.CurrentText
+}
+
+func (self *DiffData) GetSnapshots() []int64 {
+	return self.Timestamps
+}
+
+func (self *DiffData) GetPrevious(timestamp int64) string {
+	idx := 0
+	for i := range self.Timestamps {
+		if timestamp >= self.Timestamps[i] {
+			idx = i
+		} else {
+			break
+		}
+	}
+
+	oldValue, err := self.rebuildTextsToDiffN(idx)
+	if nil != err {
+		log.Fatal(err)
+	}
+	return oldValue
+}
+
+/*
 func (self DiffData) GetImportantVersions() ([]versionsInfo, time.Duration) {
 	m := map[int]int{}
 	lastTime := time.Now().AddDate(0, -1, 0)
@@ -110,17 +148,4 @@ func (self DiffData) GetImportantVersions() ([]versionsInfo, time.Duration) {
 	}
 	return r, totalTime
 }
-
-func (self *DiffData) Update(newText string) {
-	dmp := diffmatchpatch.New()
-	diffs := dmp.DiffMain(self.CurrentText, newText, true)
-	delta := dmp.DiffToDelta(diffs)
-	self.CurrentText = newText
-	self.Timestamps = append(self.Timestamps, time.Now().Format(time.ANSIC))
-	self.Diffs = append(self.Diffs, delta)
-	self.Title = strings.ToLower(self.Title)
-}
-
-func (self *DiffData) GetCurrent() string {
-	return self.CurrentText
-}
+*/

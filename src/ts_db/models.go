@@ -9,16 +9,15 @@ type DiffDb struct {
 	db       *bolt.DB
 }
 
-type versionsInfo struct {
-	VersionDate string
-	VersionNum  int
-}
+// type versionsInfo struct {
+// 	VersionDate string
+// 	VersionNum  int
+// }
 
 type DiffData struct {
 	Title       string
 	CurrentText string
 	Diffs       []string
-	Timestamps  []string
-	Encrypted   bool
-	Locked      string
+	Timestamps []int64
+	Encrypted  bool
 }

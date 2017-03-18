@@ -15,45 +15,60 @@ var RuntimeArgs struct {
 	Debug            bool
 }
 
-//var VersionNum string
-
-var inputText string
+var (
+	timestamp  int64
+	insertText string
+	key        string
+	snapshots  bool
+	current    bool
+	diffDb     DiffDb
+)
 
 func main() {
 	cwd, _ := os.Getwd()
 	databaseFile := path.Join(cwd, "data.db")
 	flag.StringVar(&RuntimeArgs.DatabaseLocation, "db", databaseFile, "location of database file")
-	flag.StringVar(&inputText, "text", "", "inputText")
-
+	flag.StringVar(&insertText, "insert", "", "insert text")
+	flag.Int64Var(&timestamp, "ts", -1, "ts")
+	flag.StringVar(&key, "key", "", "key name")
+	flag.BoolVar(&snapshots, "s", false, "list snapshots")
+	flag.BoolVar(&current, "c", false, "list current")
 	flag.Parse()
 
-	// create programdata bucket
-	diffDb := NewDiffDb(RuntimeArgs.DatabaseLocation)
+	diffDb = NewDiffDb(RuntimeArgs.DatabaseLocation)
 
-	//var ddata DiffData
-	ddata, err := diffDb.Load("test_file")
+	if "" == key {
+		log.Fatal("No key to lookup")
+	}
+
+	// Load key
+	ddata, err := diffDb.Load(key)
 	if nil != err {
 		log.Fatal(err)
 	}
-
 	log.Printf("%s\n", ddata)
 
-	ddata.Update("TESTING")
-	diffDb.Save(ddata)
-	log.Printf("%s\n", ddata)
-
-	ddata.Update(`{"method":"test"}`)
-	diffDb.Save(ddata)
-	log.Printf("%s\n", ddata)
-
-	str0, err := ddata.rebuildTextsToDiffN(0)
-	if nil != err {
-		log.Fatal(err)
+	// Print older value
+	if -1 < timestamp {
+		oldValue := ddata.GetPrevious(timestamp)
+		log.Println(timestamp, oldValue)
 	}
-	log.Printf("%s\n", str0)
 
-	log.Println(ddata.GetImportantVersions())
+	// Insert new value
+	if "" != insertText {
+		ddata.Update(insertText)
+		diffDb.Save(ddata)
+		log.Printf("%s\n", ddata)
+	}
 
-	//log.Println(ddata.GetCurrent())
+	// Print current value
+	if current {
+		log.Println(ddata.GetCurrent())
+	}
+
+	// List snapshots
+	if snapshots {
+		log.Println(ddata.GetSnapshots())
+	}
 
 }

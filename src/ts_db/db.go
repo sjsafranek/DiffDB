@@ -74,7 +74,7 @@ func (self *DiffDb) Load(title string) (DiffData, error) {
 			ddata.Title = title
 			ddata.CurrentText = ""
 			ddata.Diffs = []string{}
-			ddata.Timestamps = []string{}
+			ddata.Timestamps = []int64{}
 			return nil
 		}
 
@@ -88,7 +88,6 @@ func (self *DiffDb) Load(title string) (DiffData, error) {
 		fmt.Printf("Could not get DiffData: %s", err)
 		return ddata, err
 	}
-	log.Printf("%s\n", ddata)
 	return ddata, nil
 }
 
