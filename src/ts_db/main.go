@@ -28,11 +28,10 @@ func main() {
 	flag.Parse()
 
 	// create programdata bucket
-	var diffDb = DiffDb{Filename: RuntimeArgs.DatabaseLocation}
-	diffDb.Init()
+	diffDb := NewDiffDb(RuntimeArgs.DatabaseLocation)
 
 	//var ddata DiffData
-	ddata, err := diffDb.load("test_file")
+	ddata, err := diffDb.Load("test_file")
 	if nil != err {
 		log.Fatal(err)
 	}
@@ -40,11 +39,11 @@ func main() {
 	log.Printf("%s\n", ddata)
 
 	ddata.Update("TESTING")
-	diffDb.save(ddata)
+	diffDb.Save(ddata)
 	log.Printf("%s\n", ddata)
 
 	ddata.Update(`{"method":"test"}`)
-	diffDb.save(ddata)
+	diffDb.Save(ddata)
 	log.Printf("%s\n", ddata)
 
 	str0, err := ddata.rebuildTextsToDiffN(0)
