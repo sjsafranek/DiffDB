@@ -18,6 +18,6 @@ type DiffData struct {
 	Title       string
 	CurrentText string
 	Diffs       []string
-	Timestamps []int64
-	Encrypted  bool
+	Timestamps  []int64
+	Encrypted   bool
 }

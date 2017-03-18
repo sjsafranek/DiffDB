@@ -56,7 +56,6 @@ func (self *DiffDb) Load(title string) (DiffData, error) {
 
 	title = strings.ToLower(title)
 
-	log.Println("[DiffDb] [DEBUG] Searching for key:", title)
 	var ddata DiffData
 	err := self.db.View(func(tx *bolt.Tx) error {
 		//var err error
