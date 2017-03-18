@@ -9,6 +9,13 @@ import (
 
 import "github.com/boltdb/bolt"
 
+// Creates and initializes DiffDb
+func NewDiffDb(db_file) DiffDb {
+	var diffDb = DiffDb{Filename: db_file}
+	diffDb.Init()
+	return diffDb
+}
+
 // Open to create the database and open
 func (self DiffDb) Open() *bolt.DB {
 	var err error
@@ -43,14 +50,14 @@ func (self DiffDb) Close() {
 	self.db.Close()
 }
 
-func (self *DiffDb) load(title string) (DiffData, error) {
+func (self *DiffDb) Load(title string) (DiffData, error) {
 	self.db = self.Open()
 	defer self.db.Close()
 
 	title = strings.ToLower(title)
 
 	log.Println("[DiffDb] [DEBUG] Searching for key:", title)
-	var p DiffData
+	var ddata DiffData
 	err := self.db.View(func(tx *bolt.Tx) error {
 		//var err error
 		bucket := tx.Bucket([]byte("datas"))
@@ -64,14 +71,14 @@ func (self *DiffDb) load(title string) (DiffData, error) {
 
 		if val == nil {
 			// make new one
-			p.Title = title
-			p.CurrentText = ""
-			p.Diffs = []string{}
-			p.Timestamps = []string{}
+			ddata.Title = title
+			ddata.CurrentText = ""
+			ddata.Diffs = []string{}
+			ddata.Timestamps = []string{}
 			return nil
 		}
 
-		err := p.decode(val)
+		err := ddata.decode(val)
 		if err != nil {
 			return err
 		}
@@ -79,13 +86,13 @@ func (self *DiffDb) load(title string) (DiffData, error) {
 	})
 	if err != nil {
 		fmt.Printf("Could not get DiffData: %s", err)
-		return p, err
+		return ddata, err
 	}
-	log.Printf("%s\n", p)
-	return p, nil
+	log.Printf("%s\n", ddata)
+	return ddata, nil
 }
 
-func (self *DiffDb) save(p DiffData) error {
+func (self *DiffDb) Save(ddata DiffData) error {
 	self.db = self.Open()
 	defer self.db.Close()
 
@@ -96,12 +103,12 @@ func (self *DiffDb) save(p DiffData) error {
 			panic(fmt.Errorf("Bucket does not exist"))
 		}
 
-		enc, err := p.encode()
+		enc, err := ddata.encode()
 		if err != nil {
 			return fmt.Errorf("could not encode DiffData: %s", err)
 		}
 
-		err = bucket.Put([]byte(p.Title), enc)
+		err = bucket.Put([]byte(ddata.Title), enc)
 		if err != nil {
 			return fmt.Errorf("could add to bucket: %s", err)
 		}
