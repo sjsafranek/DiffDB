@@ -116,8 +116,9 @@ func BenchmarkDbPreviousSnapshot(b *testing.B) {
 
 	snapshots := ddata.GetSnapshots()
 	l := int(len(snapshots) / 2)
-	log.Println(l)
 	timestamp = snapshots[l]
+
+	//log.Println(snapshots)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

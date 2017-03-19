@@ -21,6 +21,7 @@ var (
 	key        string
 	snapshots  bool
 	current    bool
+	about      bool
 	diffDb     DiffDb
 )
 
@@ -33,6 +34,7 @@ func main() {
 	flag.StringVar(&key, "key", "", "key name")
 	flag.BoolVar(&snapshots, "s", false, "list snapshots")
 	flag.BoolVar(&current, "c", false, "list current")
+	flag.BoolVar(&about, "a", false, "about")
 	flag.Parse()
 
 	diffDb = NewDiffDb(RuntimeArgs.DatabaseLocation)
@@ -46,7 +48,10 @@ func main() {
 	if nil != err {
 		log.Fatal(err)
 	}
-	log.Printf("%s\n", ddata)
+
+	if about {
+		log.Printf("%s\n", ddata)
+	}
 
 	// Print older value
 	if -1 < timestamp {

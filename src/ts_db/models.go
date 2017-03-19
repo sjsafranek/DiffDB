@@ -1,6 +1,10 @@
 package main
 
 import (
+	"sync"
+)
+
+import (
 	"github.com/boltdb/bolt"
 )
 
@@ -21,4 +25,5 @@ type DiffStore struct {
 	//Timestamps  []int64
 	Diffs map[int64]string
 	//Encrypted bool
+	lock sync.RWMutex
 }
