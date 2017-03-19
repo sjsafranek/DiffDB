@@ -14,7 +14,7 @@ import "github.com/sergi/go-diff/diffmatchpatch"
 // DiffStore
 // DiffStore.GetPrevious(timestamp)
 
-func (self *DiffData) encode() ([]byte, error) {
+func (self *DiffStore) encode() ([]byte, error) {
 	enc, err := json.Marshal(self)
 	if err != nil {
 		return nil, err
@@ -22,7 +22,7 @@ func (self *DiffData) encode() ([]byte, error) {
 	return enc, nil
 }
 
-func (self *DiffData) decode(data []byte) error {
+func (self *DiffStore) decode(data []byte) error {
 	err := json.Unmarshal(data, &self)
 	if err != nil {
 		return err
@@ -30,7 +30,7 @@ func (self *DiffData) decode(data []byte) error {
 	return nil
 }
 
-func (self *DiffData) diffRebuildtexts(diffs []diffmatchpatch.Diff) []string {
+func (self *DiffStore) diffRebuildtexts(diffs []diffmatchpatch.Diff) []string {
 	text := []string{"", ""}
 	for _, myDiff := range diffs {
 		if myDiff.Type != diffmatchpatch.DiffInsert {
@@ -43,7 +43,7 @@ func (self *DiffData) diffRebuildtexts(diffs []diffmatchpatch.Diff) []string {
 	return text
 }
 
-func (self *DiffData) rebuildTextsToDiffN(n int) (string, error) {
+func (self *DiffStore) rebuildTextsToDiffN(n int64) (string, error) {
 	dmp := diffmatchpatch.New()
 	lastText := ""
 	for i, diff := range self.Diffs {
@@ -58,26 +58,49 @@ func (self *DiffData) rebuildTextsToDiffN(n int) (string, error) {
 	return "", fmt.Errorf("Could not rebuild from diffs")
 }
 
-func (self *DiffData) Update(newText string) {
+func (self *DiffStore) Update(newText string) {
 	dmp := diffmatchpatch.New()
 	diffs := dmp.DiffMain(self.CurrentText, newText, true)
 	delta := dmp.DiffToDelta(diffs)
 	self.CurrentText = newText
 	//self.Timestamps = append(self.Timestamps, time.Now().Format(time.ANSIC))
-	self.Timestamps = append(self.Timestamps, time.Now().UnixNano())
-	self.Diffs = append(self.Diffs, delta)
+	//self.Timestamps = append(self.Timestamps, time.Now().UnixNano())
+	//self.Diffs = append(self.Diffs, delta)
+	now := time.Now().UnixNano()
+	self.Diffs[now] = delta
 	self.Title = strings.ToLower(self.Title)
 }
 
-func (self *DiffData) GetCurrent() string {
+func (self *DiffStore) GetCurrent() string {
 	return self.CurrentText
 }
 
-func (self *DiffData) GetSnapshots() []int64 {
-	return self.Timestamps
+func (self *DiffStore) GetSnapshots() []int64 {
+	//return self.Timestamps
+	keys := make([]int64, 0, len(self.Diffs))
+	for k := range self.Diffs {
+		keys = append(keys, k)
+	}
+	return keys
 }
 
-func (self *DiffData) GetPrevious(timestamp int64) string {
+func (self *DiffStore) GetPrevious(timestamp int64) string {
+	var ts int64 = 0
+	for i := range self.Diffs {
+		if timestamp >= i {
+			ts = i
+		}
+	}
+
+	oldValue, err := self.rebuildTextsToDiffN(ts)
+	if nil != err {
+		log.Fatal(err)
+	}
+	return oldValue
+}
+
+/*
+func (self *DiffStore) GetPrevious(timestamp int64) string {
 	idx := 0
 	for i := range self.Timestamps {
 		if timestamp >= self.Timestamps[i] {
@@ -92,60 +115,5 @@ func (self *DiffData) GetPrevious(timestamp int64) string {
 		log.Fatal(err)
 	}
 	return oldValue
-}
-
-/*
-func (self DiffData) GetImportantVersions() ([]versionsInfo, time.Duration) {
-	m := map[int]int{}
-	lastTime := time.Now().AddDate(0, -1, 0)
-	totalTime := time.Now().Sub(time.Now())
-	for i := range self.Diffs {
-		parsedTime, _ := time.Parse(time.ANSIC, self.Timestamps[i])
-		duration := parsedTime.Sub(lastTime)
-		if duration.Minutes() < 3 {
-			totalTime += duration
-		}
-		m[i] = int(duration.Seconds())
-		if i > 0 {
-			m[i-1] = m[i]
-		}
-		// On to the next one
-		lastTime = parsedTime
-	}
-
-	// Sort in order of decreasing diff times
-	n := map[int][]int{}
-	var a []int
-	for k, v := range m {
-		n[v] = append(n[v], k)
-	}
-	for k := range n {
-		a = append(a, k)
-	}
-	sort.Sort(sort.Reverse(sort.IntSlice(a)))
-
-	// Get the top 4 biggest diff times
-	var importantVersions []int
-	var r []versionsInfo
-	for _, k := range a {
-		for _, s := range n[k] {
-			if s != 0 && s != len(n) {
-				// fmt.Printf("%d, %d\n", s, k)
-				importantVersions = append(importantVersions, s)
-				if len(importantVersions) > 10 {
-					sort.Ints(importantVersions)
-					for _, nn := range importantVersions {
-						r = append(r, versionsInfo{self.Timestamps[nn], nn})
-					}
-					return r, totalTime
-				}
-			}
-		}
-	}
-	sort.Ints(importantVersions)
-	for _, nn := range importantVersions {
-		r = append(r, versionsInfo{self.Timestamps[nn], nn})
-	}
-	return r, totalTime
 }
 */

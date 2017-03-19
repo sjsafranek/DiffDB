@@ -46,7 +46,7 @@ func main() {
 	if nil != err {
 		log.Fatal(err)
 	}
-	//log.Printf("%s\n", ddata)
+	log.Printf("%s\n", ddata)
 
 	// Print older value
 	if -1 < timestamp {

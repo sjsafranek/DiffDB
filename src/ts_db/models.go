@@ -14,10 +14,11 @@ type DiffDb struct {
 // 	VersionNum  int
 // }
 
-type DiffData struct {
+type DiffStore struct {
 	Title       string
 	CurrentText string
-	Diffs       []string
-	Timestamps  []int64
-	Encrypted   bool
+	//Diffs       []string
+	//Timestamps  []int64
+	Diffs     map[int64]string
+	Encrypted bool
 }
