@@ -3,9 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	//"sort"
 	"log"
-	"strings"
+	//"sort"
+	//"strings"
 	"time"
 )
 
@@ -63,12 +63,9 @@ func (self *DiffStore) Update(newText string) {
 	diffs := dmp.DiffMain(self.CurrentText, newText, true)
 	delta := dmp.DiffToDelta(diffs)
 	self.CurrentText = newText
-	//self.Timestamps = append(self.Timestamps, time.Now().Format(time.ANSIC))
-	//self.Timestamps = append(self.Timestamps, time.Now().UnixNano())
-	//self.Diffs = append(self.Diffs, delta)
 	now := time.Now().UnixNano()
 	self.Diffs[now] = delta
-	self.Title = strings.ToLower(self.Title)
+	//self.Title = strings.ToLower(self.Title)
 }
 
 func (self *DiffStore) GetCurrent() string {
@@ -76,7 +73,6 @@ func (self *DiffStore) GetCurrent() string {
 }
 
 func (self *DiffStore) GetSnapshots() []int64 {
-	//return self.Timestamps
 	keys := make([]int64, 0, len(self.Diffs))
 	for k := range self.Diffs {
 		keys = append(keys, k)
@@ -87,33 +83,13 @@ func (self *DiffStore) GetSnapshots() []int64 {
 func (self *DiffStore) GetPrevious(timestamp int64) string {
 	var ts int64 = 0
 	for i := range self.Diffs {
-		if timestamp >= i {
+		if timestamp >= i && ts < i {
 			ts = i
 		}
 	}
-
 	oldValue, err := self.rebuildTextsToDiffN(ts)
 	if nil != err {
 		log.Fatal(err)
 	}
 	return oldValue
 }
-
-/*
-func (self *DiffStore) GetPrevious(timestamp int64) string {
-	idx := 0
-	for i := range self.Timestamps {
-		if timestamp >= self.Timestamps[i] {
-			idx = i
-		} else {
-			break
-		}
-	}
-
-	oldValue, err := self.rebuildTextsToDiffN(idx)
-	if nil != err {
-		log.Fatal(err)
-	}
-	return oldValue
-}
-*/

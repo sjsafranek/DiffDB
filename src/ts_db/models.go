@@ -19,6 +19,6 @@ type DiffStore struct {
 	CurrentText string
 	//Diffs       []string
 	//Timestamps  []int64
-	Diffs     map[int64]string
-	Encrypted bool
+	Diffs map[int64]string
+	//Encrypted bool
 }
