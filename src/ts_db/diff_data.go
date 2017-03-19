@@ -38,18 +38,22 @@ func (self *DiffStore) diffRebuildtexts(diffs []diffmatchpatch.Diff) []string {
 	return text
 }
 
-func (self *DiffStore) rebuildTextsToDiffN(timestamp int64) (string, error) {
+func (self *DiffStore) rebuildTextsToDiffN(timestamp int64, snapshots []int64) (string, error) {
 	dmp := diffmatchpatch.New()
 	lastText := ""
 	self.lock.Lock()
-	for i, diff := range self.Diffs {
+	//for i, diff := range self.Diffs {
+	for _, snapshot := range snapshots {
 
-		log.Println(i, diff)
+		diff := self.Diffs[snapshot]
+
+		//log.Println(diff)
 
 		seq1, _ := dmp.DiffFromDelta(lastText, diff)
 		textsLinemode := self.diffRebuildtexts(seq1)
 		rebuilt := textsLinemode[len(textsLinemode)-1]
-		if i == timestamp {
+		//if i == timestamp {
+		if snapshot == timestamp {
 			return rebuilt, nil
 		}
 		lastText = rebuilt
@@ -83,24 +87,35 @@ func (self *DiffStore) GetSnapshots() []int64 {
 		keys = append(keys, k)
 	}
 	self.lock.Unlock()
+	// SORT KEYS
+	keys = MergeSort(keys)
 	return keys
 }
 
 func (self *DiffStore) GetPrevious(timestamp int64) string {
 
+	snapshots := self.GetSnapshots()
+
 	// default to first value
-	var ts int64 = self.GetSnapshots()[0]
+	var ts int64 = snapshots[0]
 	//var ts int64 = 0
 
-	self.lock.Lock()
-	for i := range self.Diffs {
-		if timestamp >= i && ts < i {
-			ts = i
+	// self.lock.Lock()
+	// for i := range self.Diffs {
+	// 	if timestamp >= i && ts < i {
+	// 		ts = i
+	// 	}
+	// }
+	// self.lock.Unlock()
+
+	//for i := range snapshots {
+	for _, snapshot := range snapshots {
+		if timestamp >= snapshot && ts < snapshot {
+			ts = snapshot
 		}
 	}
-	self.lock.Unlock()
 
-	oldValue, err := self.rebuildTextsToDiffN(ts)
+	oldValue, err := self.rebuildTextsToDiffN(ts, snapshots)
 	if nil != err {
 		log.Fatal(err)
 	}
