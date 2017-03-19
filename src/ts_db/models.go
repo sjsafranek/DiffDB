@@ -13,17 +13,17 @@ type DiffDb struct {
 	db       *bolt.DB
 }
 
-// type versionsInfo struct {
-// 	VersionDate string
-// 	VersionNum  int
-// }
-
 type DiffStore struct {
-	Title       string
-	CurrentText string
-	//Diffs       []string
-	//Timestamps  []int64
-	Diffs map[int64]string
-	//Encrypted bool
-	lock sync.RWMutex
+	Name         string
+	CurrentValue string
+	Diffs        map[int64]string
+	lock         sync.RWMutex
+	Shards       map[int64]DiffShard
+}
+
+type DiffShard struct {
+	Name         string
+	CurrentValue string
+	Diffs        map[int64]string
+	lock         sync.RWMutex
 }

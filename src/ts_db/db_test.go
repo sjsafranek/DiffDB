@@ -118,28 +118,13 @@ func BenchmarkDbPreviousSnapshot(b *testing.B) {
 	l := int(len(snapshots) / 2)
 	timestamp = snapshots[l]
 
-	//log.Println(snapshots)
-
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		ddata, err := testDiffDb.Load(key)
 		if nil != err {
 			log.Fatal(err)
 		}
-		ddata.GetPrevious(timestamp)
+		ddata.GetPreviousByTimestamp(timestamp)
 	}
 
 }
-
-/*
-
-	// Print older value
-	if -1 < timestamp {
-		oldValue := ddata.GetPrevious(timestamp)
-		log.Println(timestamp, oldValue)
-	}
-
-
-
-
-*/

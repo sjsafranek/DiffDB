@@ -65,16 +65,19 @@ func (self *DiffStore) rebuildTextsToDiffN(timestamp int64, snapshots []int64) (
 func (self *DiffStore) Update(newText string) {
 	self.lock.RLock()
 	dmp := diffmatchpatch.New()
-	diffs := dmp.DiffMain(self.CurrentText, newText, true)
+	diffs := dmp.DiffMain(self.CurrentValue, newText, true)
 	delta := dmp.DiffToDelta(diffs)
-	self.CurrentText = newText
+	self.CurrentValue = newText
 	now := time.Now().UnixNano()
 	self.Diffs[now] = delta
 	self.lock.RUnlock()
 }
 
+// @method 		GetCurrent
+// @description Returns current value
+// @return 		string
 func (self *DiffStore) GetCurrent() string {
-	return self.CurrentText
+	return self.CurrentValue
 }
 
 // @method 		GetSnapshots
@@ -92,7 +95,7 @@ func (self *DiffStore) GetSnapshots() []int64 {
 	return keys
 }
 
-func (self *DiffStore) GetPrevious(timestamp int64) string {
+func (self *DiffStore) GetPreviousByTimestamp(timestamp int64) string {
 
 	snapshots := self.GetSnapshots()
 
@@ -100,20 +103,29 @@ func (self *DiffStore) GetPrevious(timestamp int64) string {
 	var ts int64 = snapshots[0]
 	//var ts int64 = 0
 
-	// self.lock.Lock()
-	// for i := range self.Diffs {
-	// 	if timestamp >= i && ts < i {
-	// 		ts = i
-	// 	}
-	// }
-	// self.lock.Unlock()
-
-	//for i := range snapshots {
 	for _, snapshot := range snapshots {
 		if timestamp >= snapshot && ts < snapshot {
 			ts = snapshot
 		}
 	}
+
+	oldValue, err := self.rebuildTextsToDiffN(ts, snapshots)
+	if nil != err {
+		log.Fatal(err)
+	}
+
+	return oldValue
+}
+
+func (self *DiffStore) GetPreviousByIndex(idx int) string {
+
+	snapshots := self.GetSnapshots()
+
+	if idx > len(snapshots)-1 {
+		idx = len(snapshots) - 1
+	}
+
+	var ts int64 = snapshots[idx]
 
 	oldValue, err := self.rebuildTextsToDiffN(ts, snapshots)
 	if nil != err {

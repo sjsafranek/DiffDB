@@ -50,11 +50,11 @@ func (self DiffDb) Close() {
 	self.db.Close()
 }
 
-func (self *DiffDb) Load(title string) (DiffStore, error) {
+func (self *DiffDb) Load(name string) (DiffStore, error) {
 	self.db = self.Open()
 	defer self.db.Close()
 
-	title = strings.ToLower(title)
+	name = strings.ToLower(name)
 
 	var ddata DiffStore
 	err := self.db.View(func(tx *bolt.Tx) error {
@@ -64,15 +64,13 @@ func (self *DiffDb) Load(title string) (DiffStore, error) {
 			panic(fmt.Errorf("Bucket does not exist"))
 		}
 
-		k := []byte(title)
+		k := []byte(name)
 		val := bucket.Get(k)
 
 		if val == nil {
 			// make new one
-			ddata.Title = title
-			ddata.CurrentText = ""
-			//ddata.Diffs = []string{}
-			//ddata.Timestamps = []int64{}
+			ddata.Name = name
+			ddata.CurrentValue = ""
 			ddata.Diffs = make(map[int64]string)
 			return nil
 		}
@@ -105,7 +103,7 @@ func (self *DiffDb) Save(ddata DiffStore) error {
 			return fmt.Errorf("could not encode DiffStore: %s", err)
 		}
 
-		err = bucket.Put([]byte(ddata.Title), enc)
+		err = bucket.Put([]byte(ddata.Name), enc)
 		if err != nil {
 			return fmt.Errorf("could add to bucket: %s", err)
 		}
