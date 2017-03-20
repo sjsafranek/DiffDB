@@ -154,9 +154,24 @@ func main() {
 		// print result
 		fmt.Printf("%s\n", ddata.GetCurrent())
 
+	// delete key
+	case "DEL":
+
+		ddata, err := diffDb.Load(key)
+		if nil != err {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		err = diffDb.Remove(ddata)
+		if nil != err {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
 	default:
-		msg := fmt.Sprintf("Unsupported action %s, cannot process.", args[0])
-		log.Fatal(msg)
+		fmt.Printf("Unsupported action %s, cannot process.", args[0])
+		os.Exit(1)
 	}
 
 }

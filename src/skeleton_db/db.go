@@ -104,9 +104,29 @@ func (self *DiffDb) Save(ddata DiffStore) error {
 
 		err = bucket.Put([]byte(ddata.Name), enc)
 		if err != nil {
-			return fmt.Errorf("could add to bucket: %s", err)
+			return fmt.Errorf("could not add to bucket: %s", err)
 		}
 		return err
 	})
 	return err
 }
+
+func (self *DiffDb) Remove(ddata DiffStore) error {
+	self.db = self.Open()
+	defer self.db.Close()
+
+	err := self.db.Update(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket(self.getBucketName())
+		if bucket == nil {
+			panic(fmt.Errorf("Bucket does not exist"))
+		}
+
+		err := bucket.Delete([]byte(ddata.Name))
+		if err != nil {
+			return fmt.Errorf("could not delete key: %s", err)
+		}
+		return err
+	})
+	return err
+}
+
