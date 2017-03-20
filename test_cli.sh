@@ -1,3 +1,4 @@
+#!/bin/bash
 
 echo "Loading data for testing..."
 ./skeleton_cli -db test.db SET test test0
