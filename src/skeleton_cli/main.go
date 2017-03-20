@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"path"
 	"strconv"
@@ -22,20 +21,18 @@ const (
 // arguments available
 var RuntimeArgs struct {
 	DatabaseLocation string
-	Debug            bool
+	PrintVersion     bool
+	Verbose          bool
 }
 
 var (
-	// timestamp    int64
-	// index        int
-	// insertText   string
-	// key          string
-	// snapshots    bool
-	// current      bool
-	// about        bool
-	print_version bool
-	diffDb        skeleton_db.DiffDb
+	diffDb skeleton_db.DiffDb
 )
+
+// func errorHandler(err) {
+
+// 	os.Exit(1)
+// }
 
 func main() {
 	cwd, _ := os.Getwd()
@@ -47,11 +44,12 @@ func main() {
 	}
 
 	flag.StringVar(&RuntimeArgs.DatabaseLocation, "db", databaseFile, "location of database file")
-	flag.BoolVar(&print_version, "v", false, "version")
+	flag.BoolVar(&RuntimeArgs.PrintVersion, "v", false, "version")
+	flag.BoolVar(&RuntimeArgs.Verbose, "verbose", false, "verbose")
 	flag.Parse()
 
 	// list version
-	if print_version {
+	if RuntimeArgs.PrintVersion {
 		fmt.Println("SkeletonDb", skeleton_db.VERSION)
 		os.Exit(0)
 	}
@@ -141,7 +139,8 @@ func main() {
 				// create new diffstore if key not found in database
 				ddata = skeleton_db.NewDiffStore(key)
 			} else {
-				log.Fatal(err)
+				fmt.Println(err)
+				os.Exit(1)
 			}
 		}
 
