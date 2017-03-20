@@ -41,6 +41,9 @@ func main() {
 	flag.Usage = func() {
 		fmt.Printf("%s %s\n\n", NAME, skeleton_db.VERSION)
 		fmt.Printf("Usage:\n\t%s [options...] action key [action_args...]\n\n", BINARY)
+		fmt.Println(" * action:\tThe action to preform. Supported action(s): GET, SET, DEL")
+		fmt.Println(" * action_args:\tVariadic arguments provided to the requested action. Different actions require different arguments")
+		fmt.Println("\n")
 	}
 
 	flag.StringVar(&RuntimeArgs.DatabaseLocation, "db", databaseFile, "location of database file")
@@ -60,11 +63,11 @@ func main() {
 	// get args
 	args := flag.Args()
 	if 0 == len(args) {
-		fmt.Printf("An action is required. Usage %s [options...] action key [action_args...]", BINARY)
+		fmt.Printf("An action is required. Usage %s [options...] action key [action_args...]\n", BINARY)
 		os.Exit(1)
 	}
 	if 2 > len(args) {
-		fmt.Printf("A key is required. Usage %s [options...] action key [action_args...]", BINARY)
+		fmt.Printf("A key is required. Usage %s [options...] action key [action_args...]\n", BINARY)
 		os.Exit(1)
 	}
 
@@ -128,7 +131,7 @@ func main() {
 
 		// check for data to set as new value
 		if 3 > len(args) {
-			fmt.Printf("An value is required. Usage %s [options...] action key [action_args...]", BINARY)
+			fmt.Printf("An value is required. Usage %s [options...] action key [action_args...]\n", BINARY)
 			os.Exit(1)
 		}
 
