@@ -1,4 +1,4 @@
-package main
+package skeleton_db
 
 import (
 	crand "crypto/rand"

@@ -1,4 +1,4 @@
-package main
+package skeleton_db
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import "github.com/boltdb/bolt"
 
 // Creates and initializes DiffDb
 func NewDiffDb(db_file string) DiffDb {
-	var diffDb = DiffDb{Filename: db_file}
+	var diffDb = DiffDb{Filename: db_file, Table: "DiffData"}
 	diffDb.Init()
 	return diffDb
 }
@@ -29,10 +29,17 @@ func (self DiffDb) Open() *bolt.DB {
 }
 
 func (self DiffDb) Init() {
-	err := self.CreateTable("datas")
+	if "" == self.Table {
+		self.Table = "DiffData"
+	}
+	err := self.CreateTable(self.Table)
 	if nil != err {
 		log.Fatal(err)
 	}
+}
+
+func (self DiffDb) getBucketName() []byte {
+	return []byte(self.Table)
 }
 
 func (self DiffDb) CreateTable(table string) error {
@@ -59,7 +66,7 @@ func (self *DiffDb) Load(name string) (DiffStore, error) {
 	var ddata DiffStore
 	err := self.db.View(func(tx *bolt.Tx) error {
 		//var err error
-		bucket := tx.Bucket([]byte("datas"))
+		bucket := tx.Bucket(self.getBucketName())
 		if bucket == nil {
 			panic(fmt.Errorf("Bucket does not exist"))
 		}
@@ -68,24 +75,16 @@ func (self *DiffDb) Load(name string) (DiffStore, error) {
 		val := bucket.Get(k)
 
 		if val == nil {
-			// make new one
-			ddata.Name = name
-			ddata.CurrentValue = ""
-			ddata.Diffs = make(map[int64]string)
-			return nil
+			return fmt.Errorf("Not found")
 		}
 
-		err := ddata.decode(val)
+		err := ddata.Decode(val)
 		if err != nil {
 			return err
 		}
 		return nil
 	})
-	if err != nil {
-		fmt.Printf("Could not get DiffStore: %s", err)
-		return ddata, err
-	}
-	return ddata, nil
+	return ddata, err
 }
 
 func (self *DiffDb) Save(ddata DiffStore) error {
@@ -93,12 +92,12 @@ func (self *DiffDb) Save(ddata DiffStore) error {
 	defer self.db.Close()
 
 	err := self.db.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte("datas"))
+		bucket := tx.Bucket(self.getBucketName())
 		if bucket == nil {
 			panic(fmt.Errorf("Bucket does not exist"))
 		}
 
-		enc, err := ddata.encode()
+		enc, err := ddata.Encode()
 		if err != nil {
 			return fmt.Errorf("could not encode DiffStore: %s", err)
 		}

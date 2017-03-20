@@ -2,5 +2,5 @@
 
 export GOPATH="`pwd`"
 
-cd src/ts_db
+cd src/skeleton_db
 go test -bench=. -test.benchmem

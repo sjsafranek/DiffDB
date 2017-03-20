@@ -1,4 +1,4 @@
-package main
+package skeleton_db
 
 import (
 	"encoding/json"
@@ -9,7 +9,21 @@ import (
 
 import "github.com/sergi/go-diff/diffmatchpatch"
 
-func (self *DiffStore) encode() ([]byte, error) {
+// @method 		NewDiffStore
+// @description Creates and returns DiffStore structs
+// @returns 	DiffStore
+func NewDiffStore(name string) DiffStore {
+	var ddata DiffStore
+	ddata.Name = name
+	ddata.CurrentValue = ""
+	ddata.Diffs = make(map[int64]string)
+	return ddata
+}
+
+// @method 		encode
+// @description encodes struct to json []byte
+// @returns 	[]byte, error
+func (self *DiffStore) Encode() ([]byte, error) {
 	enc, err := json.Marshal(self)
 	if err != nil {
 		return nil, err
@@ -17,7 +31,11 @@ func (self *DiffStore) encode() ([]byte, error) {
 	return enc, nil
 }
 
-func (self *DiffStore) decode(data []byte) error {
+// @method 		decode
+// @description decodes json []btye to struct
+// @param		{[]byte} data to decode
+// @returns 	error
+func (self *DiffStore) Decode(data []byte) error {
 	err := json.Unmarshal(data, &self)
 	if err != nil {
 		return err
@@ -25,6 +43,10 @@ func (self *DiffStore) decode(data []byte) error {
 	return nil
 }
 
+// @method 		diffRebuildtexts
+// @description Builds text value from changes
+// @param		{[]diffmatchpatch.Diff} list of diff changes
+// @returns 	string, error
 func (self *DiffStore) diffRebuildtexts(diffs []diffmatchpatch.Diff) []string {
 	text := []string{"", ""}
 	for _, diff := range diffs {
@@ -38,31 +60,43 @@ func (self *DiffStore) diffRebuildtexts(diffs []diffmatchpatch.Diff) []string {
 	return text
 }
 
+// @method 		rebuildTextsToDiffN
+// @description Builds text value from changes
+// @param		{int64} unix nano timestamp
+// @param		{[]int64} list of unix nano timestamps
+// @returns 	string, error
 func (self *DiffStore) rebuildTextsToDiffN(timestamp int64, snapshots []int64) (string, error) {
 	dmp := diffmatchpatch.New()
 	lastText := ""
 	self.lock.Lock()
-	//for i, diff := range self.Diffs {
+
 	for _, snapshot := range snapshots {
 
 		diff := self.Diffs[snapshot]
-
-		//log.Println(diff)
-
 		seq1, _ := dmp.DiffFromDelta(lastText, diff)
 		textsLinemode := self.diffRebuildtexts(seq1)
 		rebuilt := textsLinemode[len(textsLinemode)-1]
-		//if i == timestamp {
+
 		if snapshot == timestamp {
 			return rebuilt, nil
 		}
 		lastText = rebuilt
 	}
+
 	self.lock.Unlock()
 	return "", fmt.Errorf("Could not rebuild from diffs")
 }
 
+// @method 		Update
+// @description Updates value
+// @param		string
 func (self *DiffStore) Update(newText string) {
+
+	// check for changes
+	if self.GetCurrent() == newText {
+		return
+	}
+
 	self.lock.RLock()
 	dmp := diffmatchpatch.New()
 	diffs := dmp.DiffMain(self.CurrentValue, newText, true)
@@ -95,13 +129,16 @@ func (self *DiffStore) GetSnapshots() []int64 {
 	return keys
 }
 
+// @method 		GetPreviousByTimestamp
+// @description Returns value at given timestamp
+// @param		{int64}
+// @return 		string
 func (self *DiffStore) GetPreviousByTimestamp(timestamp int64) string {
 
 	snapshots := self.GetSnapshots()
 
 	// default to first value
 	var ts int64 = snapshots[0]
-	//var ts int64 = 0
 
 	for _, snapshot := range snapshots {
 		if timestamp >= snapshot && ts < snapshot {
@@ -117,6 +154,10 @@ func (self *DiffStore) GetPreviousByTimestamp(timestamp int64) string {
 	return oldValue
 }
 
+// @method 		GetPreviousByIndex
+// @description Returns value at given index
+// @param		{int}
+// @return 		string
 func (self *DiffStore) GetPreviousByIndex(idx int) string {
 
 	snapshots := self.GetSnapshots()

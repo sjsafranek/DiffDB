@@ -6,7 +6,7 @@
 ##======================================================================##
 
 SHELL=/bin/bash
-PROJECT_NAME = ts_db
+PROJECT_NAME = skeleton_cli
 GPATH = $(shell pwd)
 
 .PHONY: fmt install get scrape build clean 
@@ -25,3 +25,5 @@ scrape:
 
 clean:
 	@GOPATH=${GPATH} go clean
+	rm bin/*
+	rm src/skeleton_db/*.db
