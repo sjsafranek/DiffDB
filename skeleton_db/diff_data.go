@@ -125,7 +125,7 @@ func (self *DiffStore) GetSnapshots() []int64 {
 	}
 	self.lock.Unlock()
 	// SORT KEYS
-	keys = MergeSort(keys)
+	keys = MergeSortInt64(keys)
 	return keys
 }
 
