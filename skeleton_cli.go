@@ -9,7 +9,7 @@ import (
 )
 
 import (
-	"skeleton_db"
+	"./skeleton_db"
 )
 
 const (
@@ -28,11 +28,6 @@ var RuntimeArgs struct {
 var (
 	diffDb skeleton_db.DiffDb
 )
-
-// func errorHandler(err) {
-
-// 	os.Exit(1)
-// }
 
 func main() {
 	cwd, _ := os.Getwd()

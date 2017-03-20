@@ -129,4 +129,3 @@ func (self *DiffDb) Remove(ddata DiffStore) error {
 	})
 	return err
 }
-
