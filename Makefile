@@ -12,11 +12,11 @@ GPATH = $(shell pwd)
 .PHONY: fmt install get scrape build clean 
 
 install: fmt
-	#@GOPATH=${GPATH} go install ${PROJECT_NAME}
 	@GOPATH=${GPATH} go build skeleton_cli.go
 
 fmt:
 	@GOPATH=${GPATH} gofmt -s -w ${PROJECT_NAME}
+	@GOPATH=${GPATH}  gofmt -s -w skeleton_cli.go
 
 get:
 	@GOPATH=${GPATH} go get ${OPTS} ${ARGS}
@@ -26,5 +26,3 @@ scrape:
 
 clean:
 	@GOPATH=${GPATH} go clean
-	rm bin/*
-	rm src/skeleton_db/*.db

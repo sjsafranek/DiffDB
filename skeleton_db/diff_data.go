@@ -3,7 +3,6 @@ package skeleton_db
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 )
 
@@ -133,7 +132,7 @@ func (self *DiffStore) GetSnapshots() []int64 {
 // @description Returns value at given timestamp
 // @param		{int64}
 // @return 		string
-func (self *DiffStore) GetPreviousByTimestamp(timestamp int64) string {
+func (self *DiffStore) GetPreviousByTimestamp(timestamp int64) (string, error) {
 
 	snapshots := self.GetSnapshots()
 
@@ -147,18 +146,18 @@ func (self *DiffStore) GetPreviousByTimestamp(timestamp int64) string {
 	}
 
 	oldValue, err := self.rebuildTextsToDiffN(ts, snapshots)
-	if nil != err {
-		log.Fatal(err)
-	}
-
-	return oldValue
+	return oldValue, err
 }
 
 // @method 		GetPreviousByIndex
 // @description Returns value at given index
 // @param		{int}
 // @return 		string
-func (self *DiffStore) GetPreviousByIndex(idx int) string {
+func (self *DiffStore) GetPreviousByIndex(idx int) (string, error) {
+
+	if 0 > idx {
+		return "", fmt.Errorf("Index most be positive integer")
+	}
 
 	snapshots := self.GetSnapshots()
 
@@ -169,9 +168,5 @@ func (self *DiffStore) GetPreviousByIndex(idx int) string {
 	var ts int64 = snapshots[idx]
 
 	oldValue, err := self.rebuildTextsToDiffN(ts, snapshots)
-	if nil != err {
-		log.Fatal(err)
-	}
-
-	return oldValue
+	return oldValue, err
 }
