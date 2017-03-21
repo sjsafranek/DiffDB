@@ -154,15 +154,6 @@ func main() {
 					msg += fmt.Sprintf("%v,%s\n", i, vals[i])
 				}
 				successHandler(msg)
-
-				//msg := fmt.Sprintf("%v", vals)
-				//successHandler(msg)
-
-				//enc, err := json.Marshal(vals)
-				//if err != nil {
-				//	errorHandler(err)
-				//}
-				//successHandler(string(enc))
 			}
 		}
 
