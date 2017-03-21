@@ -77,6 +77,7 @@ func (self *DiffStore) rebuildTextsToDiffN(timestamp int64, snapshots []int64) (
 		rebuilt := textsLinemode[len(textsLinemode)-1]
 
 		if snapshot == timestamp {
+			self.lock.Unlock()
 			return rebuilt, nil
 		}
 		lastText = rebuilt
@@ -134,17 +135,25 @@ func (self *DiffStore) GetSnapshots() []int64 {
 // @return 		string
 func (self *DiffStore) GetPreviousByTimestamp(timestamp int64) (string, error) {
 
+	// check inputs
+	if 0 > timestamp {
+		return "", fmt.Errorf("Timestamps most be positive integer")
+	}
+
+	// get change snapshot
 	snapshots := self.GetSnapshots()
 
 	// default to first value
 	var ts int64 = snapshots[0]
 
+	// find timestamp
 	for _, snapshot := range snapshots {
 		if timestamp >= snapshot && ts < snapshot {
 			ts = snapshot
 		}
 	}
 
+	// use timestamp to find value
 	oldValue, err := self.rebuildTextsToDiffN(ts, snapshots)
 	return oldValue, err
 }
@@ -155,18 +164,58 @@ func (self *DiffStore) GetPreviousByTimestamp(timestamp int64) (string, error) {
 // @return 		string
 func (self *DiffStore) GetPreviousByIndex(idx int) (string, error) {
 
+	// check inputs
 	if 0 > idx {
 		return "", fmt.Errorf("Index most be positive integer")
 	}
 
+	// get change snapshots
 	snapshots := self.GetSnapshots()
 
+	// if index greater than length of snapshot
+	// default to last snapshot
 	if idx > len(snapshots)-1 {
 		idx = len(snapshots) - 1
 	}
 
+	// use index to find timestamp
 	var ts int64 = snapshots[idx]
 
+	// use timestamp to find value
 	oldValue, err := self.rebuildTextsToDiffN(ts, snapshots)
 	return oldValue, err
+}
+
+// @method 		GetPreviousWithinRange
+// @description Returns value at given timestamp
+// @param		{int64} begin_timestamp
+// @param		{int64} end_timestamp
+// @return 		string
+func (self *DiffStore) GetPreviousWithinTimestampRange(begin_timestamp int64, end_timestamp int64) (map[int64]string, error) {
+
+	// TODO:
+	// - Calculate old values i one pass
+
+	values := make(map[int64]string)
+
+	// check inputs
+	if 0 > begin_timestamp || 0 > end_timestamp {
+		return values, fmt.Errorf("Timestamps most be positive integers")
+	}
+
+	// rebuild all values within range
+	snapshots := self.GetSnapshots()
+	for _, snapshot := range snapshots {
+		if begin_timestamp <= snapshot && end_timestamp >= snapshot {
+			value, err := self.rebuildTextsToDiffN(snapshot, snapshots)
+			if nil != err {
+				return values, err
+			}
+
+			values[snapshot] = value
+		}
+	}
+
+	// return values
+	return values, nil
 }

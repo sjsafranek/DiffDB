@@ -1,6 +1,7 @@
 package main
 
 import (
+	// "encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -128,6 +129,41 @@ func main() {
 				successHandler(val)
 			}
 
+		}
+
+		if 5 == len(args) {
+
+			num1, err := strconv.ParseInt(args[3], 10, 64)
+			if nil != err {
+				errorHandler(err)
+			}
+
+			num2, err := strconv.ParseInt(args[4], 10, 64)
+			if nil != err {
+				errorHandler(err)
+			}
+
+			if "RANGE" == args[2] {
+				vals, err := ddata.GetPreviousWithinTimestampRange(num1, num2)
+				if nil != err {
+					errorHandler(err)
+				}
+
+				msg := "timestamp,value\n"
+				for i := range vals {
+					msg += fmt.Sprintf("%v,%s\n", i, vals[i])
+				}
+				successHandler(msg)
+
+				//msg := fmt.Sprintf("%v", vals)
+				//successHandler(msg)
+
+				//enc, err := json.Marshal(vals)
+				//if err != nil {
+				//	errorHandler(err)
+				//}
+				//successHandler(string(enc))
+			}
 		}
 
 		incorrectUsageError()
