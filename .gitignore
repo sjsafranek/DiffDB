@@ -1,5 +1,6 @@
 *.db
 *.bolt
 pkg
+src
 bin
 skeleton-cli
