@@ -6,17 +6,17 @@
 ##======================================================================##
 
 SHELL=/bin/bash
-PROJECT_NAME = skeleton_db
 GPATH = $(shell pwd)
 
 .PHONY: fmt install get scrape build clean 
 
 install: fmt
-	@GOPATH=${GPATH} go build skeleton_cli.go
+	@GOPATH=${GPATH} go build -o skeleton-cli client.go
 
 fmt:
-	@GOPATH=${GPATH} gofmt -s -w ${PROJECT_NAME}
-	@GOPATH=${GPATH}  gofmt -s -w skeleton_cli.go
+	@GOPATH=${GPATH} gofmt -s -w skeleton_db
+	@GOPATH=${GPATH} gofmt -s -w diff_store
+	@GOPATH=${GPATH}  gofmt -s -w client.go
 
 get:
 	@GOPATH=${GPATH} go get ${OPTS} ${ARGS}

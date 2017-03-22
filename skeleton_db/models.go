@@ -1,10 +1,6 @@
 package skeleton_db
 
 import (
-	"sync"
-)
-
-import (
 	"github.com/boltdb/bolt"
 )
 
@@ -17,6 +13,8 @@ type DiffDb struct {
 	Table    string
 	db       *bolt.DB
 }
+
+/*
 
 type DiffStore struct {
 	Name         string
@@ -32,3 +30,5 @@ type DiffShard struct {
 	Diffs        map[int64]string
 	lock         sync.RWMutex
 }
+
+*/

@@ -57,13 +57,14 @@ func (self DiffDb) Close() {
 	self.db.Close()
 }
 
-func (self *DiffDb) Load(name string) (DiffStore, error) {
+func (self *DiffDb) Load(name string) ([]byte, error) {
 	self.db = self.Open()
 	defer self.db.Close()
 
 	name = strings.ToLower(name)
 
-	var ddata DiffStore
+	var data []byte
+
 	err := self.db.View(func(tx *bolt.Tx) error {
 		//var err error
 		bucket := tx.Bucket(self.getBucketName())
@@ -73,21 +74,19 @@ func (self *DiffDb) Load(name string) (DiffStore, error) {
 
 		k := []byte(name)
 		val := bucket.Get(k)
-
 		if val == nil {
 			return fmt.Errorf("Not found")
 		}
 
-		err := ddata.Decode(val)
-		if err != nil {
-			return err
-		}
+		// copy byte
+		data = []byte(string(val))
+
 		return nil
 	})
-	return ddata, err
+	return data, err
 }
 
-func (self *DiffDb) Save(ddata DiffStore) error {
+func (self *DiffDb) Save(name string, data []byte) error {
 	self.db = self.Open()
 	defer self.db.Close()
 
@@ -97,12 +96,7 @@ func (self *DiffDb) Save(ddata DiffStore) error {
 			panic(fmt.Errorf("Bucket does not exist"))
 		}
 
-		enc, err := ddata.Encode()
-		if err != nil {
-			return fmt.Errorf("could not encode DiffStore: %s", err)
-		}
-
-		err = bucket.Put([]byte(ddata.Name), enc)
+		err := bucket.Put([]byte(name), data)
 		if err != nil {
 			return fmt.Errorf("could not add to bucket: %s", err)
 		}
@@ -111,7 +105,7 @@ func (self *DiffDb) Save(ddata DiffStore) error {
 	return err
 }
 
-func (self *DiffDb) Remove(ddata DiffStore) error {
+func (self *DiffDb) Remove(name string) error {
 	self.db = self.Open()
 	defer self.db.Close()
 
@@ -121,7 +115,7 @@ func (self *DiffDb) Remove(ddata DiffStore) error {
 			panic(fmt.Errorf("Bucket does not exist"))
 		}
 
-		err := bucket.Delete([]byte(ddata.Name))
+		err := bucket.Delete([]byte(name))
 		if err != nil {
 			return fmt.Errorf("could not delete key: %s", err)
 		}
