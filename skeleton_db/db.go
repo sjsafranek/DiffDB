@@ -131,6 +131,24 @@ func (self *DiffDb) Remove(name string) error {
 	return err
 }
 
+func (self *DiffDb) SelectAll() ([]string, error) {
+	self.db = self.Open()
+	defer self.db.Close()
+	data := []string{}
+	err := self.db.View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(self.getBucketName()))
+		if bucket == nil {
+			return fmt.Errorf("Bucket %q not found!", self.getBucketName())
+		}
+		bucket.ForEach(func(key, _ []byte) error {
+			data = append(data, string(key))
+			return nil
+		})
+		return nil
+	})
+	return data, err
+}
+
 // Methods: Compression
 // Source: https://github.com/schollz/gofind/blob/master/utils.go#L146-L169
 //         https://github.com/schollz/gofind/blob/master/fingerprint.go#L43-L54

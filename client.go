@@ -75,6 +75,20 @@ func main() {
 
 	// get args
 	args := flag.Args()
+
+	// If only one arg
+	if 1 == len(args) {
+		action := args[0]
+		if "KEYS" == action {
+			keys, err := diffDb.SelectAll()
+			if nil != err {
+				errorHandler(err)
+			}
+			result := fmt.Sprintf("%v", keys)
+			successHandler(result)
+		}
+	}
+
 	if 2 > len(args) {
 		incorrectUsageError()
 	}
