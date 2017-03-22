@@ -6,6 +6,7 @@
 ##======================================================================##
 
 SHELL=/bin/bash
+PROJECT_NAME = SkeletonDb
 GPATH = $(shell pwd)
 
 .PHONY: fmt deps install build scrape clean
@@ -26,9 +27,6 @@ fmt:
 	@GOPATH=${GPATH} gofmt -s -w skeleton_db
 	@GOPATH=${GPATH} gofmt -s -w diff_store
 	@GOPATH=${GPATH} gofmt -s -w client.go
-
-#get:
-#	@GOPATH=${GPATH} go get ${OPTS} ${ARGS}
 
 scrape:
 	@find src -type d -name '.hg' -or -type d -name '.git' | xargs rm -rf
