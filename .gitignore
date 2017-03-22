@@ -2,4 +2,4 @@
 *.bolt
 pkg
 bin
-skeleton_cli
+skeleton-cli
