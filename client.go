@@ -104,7 +104,7 @@ func main() {
 			successHandler(ddata.GetCurrent())
 		}
 
-		if "SNAPSHOTS" == args[2] {
+		if "SNAPSHOTS" == args[2] || "TIMESTAMPS" == args[2] {
 			msg := fmt.Sprintf("%v", ddata.GetSnapshots())
 			successHandler(msg)
 		}

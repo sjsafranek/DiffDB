@@ -8,10 +8,14 @@
 SHELL=/bin/bash
 GPATH = $(shell pwd)
 
-.PHONY: fmt install get scrape build clean 
+.PHONY: fmt install get scrape build clean deps
 
-install: fmt
+install: fmt deps
 	@GOPATH=${GPATH} go build -o skeleton-cli client.go
+
+deps:
+	@GOPATH=${GPATH} go get github.com/boltdb/bolt
+	@GOPATH=${GPATH} go get github.com/sergi/go-diff/diffmatchpatch
 
 fmt:
 	@GOPATH=${GPATH} gofmt -s -w skeleton_db
@@ -26,3 +30,4 @@ scrape:
 
 clean:
 	@GOPATH=${GPATH} go clean
+
