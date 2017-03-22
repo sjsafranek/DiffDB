@@ -9,7 +9,7 @@ SHELL=/bin/bash
 PROJECT_NAME = SkeletonDb
 GPATH = $(shell pwd)
 
-.PHONY: fmt deps install build scrape clean
+.PHONY: fmt deps test install build scrape clean
 
 install: fmt deps
 	@GOPATH=${GPATH} go build -o skeleton-cli client.go
@@ -27,6 +27,11 @@ fmt:
 	@GOPATH=${GPATH} gofmt -s -w skeleton_db
 	@GOPATH=${GPATH} gofmt -s -w diff_store
 	@GOPATH=${GPATH} gofmt -s -w client.go
+
+test:
+	./test_cli.sh
+	./benchmark.sh
+	# run apittester
 
 scrape:
 	@find src -type d -name '.hg' -or -type d -name '.git' | xargs rm -rf
