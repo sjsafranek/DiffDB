@@ -1,1 +1,1 @@
-package skeleton_db
+package diff_store
