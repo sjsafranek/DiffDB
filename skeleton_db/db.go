@@ -1,7 +1,10 @@
 package skeleton_db
 
 import (
+	"bytes"
+	"compress/flate"
 	"fmt"
+	"io"
 	"log"
 	"strings"
 	"time"
@@ -78,8 +81,8 @@ func (self *DiffDb) Load(name string) ([]byte, error) {
 			return fmt.Errorf("Not found")
 		}
 
-		// copy byte
-		data = []byte(string(val))
+		// decompress data
+		data = self.decompressByte(val)
 
 		return nil
 	})
@@ -96,7 +99,11 @@ func (self *DiffDb) Save(name string, data []byte) error {
 			panic(fmt.Errorf("Bucket does not exist"))
 		}
 
-		err := bucket.Put([]byte(name), data)
+		// compress data
+		cmp := self.compressByte(data)
+
+		// store in database
+		err := bucket.Put([]byte(name), cmp)
 		if err != nil {
 			return fmt.Errorf("could not add to bucket: %s", err)
 		}
@@ -122,4 +129,34 @@ func (self *DiffDb) Remove(name string) error {
 		return err
 	})
 	return err
+}
+
+// Methods: Compression
+// Source: https://github.com/schollz/gofind/blob/master/utils.go#L146-L169
+//         https://github.com/schollz/gofind/blob/master/fingerprint.go#L43-L54
+// Description:
+//		Compress and Decompress bytes
+func (self *DiffDb) compressByte(src []byte) []byte {
+	compressedData := new(bytes.Buffer)
+	self.compress(src, compressedData, 9)
+	return compressedData.Bytes()
+}
+
+func (self *DiffDb) decompressByte(src []byte) []byte {
+	compressedData := bytes.NewBuffer(src)
+	deCompressedData := new(bytes.Buffer)
+	self.decompress(compressedData, deCompressedData)
+	return deCompressedData.Bytes()
+}
+
+func (self *DiffDb) compress(src []byte, dest io.Writer, level int) {
+	compressor, _ := flate.NewWriter(dest, level)
+	compressor.Write(src)
+	compressor.Close()
+}
+
+func (self *DiffDb) decompress(src io.Reader, dest io.Writer) {
+	decompressor := flate.NewReader(src)
+	io.Copy(dest, decompressor)
+	decompressor.Close()
 }
