@@ -41,7 +41,7 @@ func (self *DiffDb) Load(name string) ([]byte, error) {
 func (self *DiffDb) Save(name string, data []byte) error {
 	err := self.DB.Insert(self.Table, name, data)
 
-	fmt.Println(err)
+	fmt.Println(self.Table, name, data, err)
 
 	return err
 }
