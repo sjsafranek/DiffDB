@@ -20,6 +20,8 @@ func (self DiffDb) Init() {
 		self.Table = "DiffData"
 	}
 
+	self.DB.Init()
+
 	conn := self.DB.Connect()
 	defer conn.Close()
 
