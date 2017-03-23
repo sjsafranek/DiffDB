@@ -20,14 +20,14 @@ func (self DiffDb) Init() {
 	}
 }
 
-func (self DiffDb) getFile() {
+func (self DiffDb) getFile() string {
 	if "" == self.File {
 		return "diff.db"
 	}
 	return self.File
 }
 
-func (self DiffDb) getTable() {
+func (self DiffDb) getTable() string {
 	if "" == self.Table {
 		return "DiffData"
 	}
