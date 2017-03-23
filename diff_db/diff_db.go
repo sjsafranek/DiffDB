@@ -6,7 +6,7 @@ import (
 
 import "github.com/sjsafranek/SkeletonDB"
 
-func (self DiffDb) Init() {
+func (self *DiffDb) Init() {
 
 	self.DB = skeleton.Database{File: self.getFile()}
 	self.DB.Init()
@@ -20,14 +20,14 @@ func (self DiffDb) Init() {
 	}
 }
 
-func (self DiffDb) getFile() string {
+func (self *DiffDb) getFile() string {
 	if "" == self.File {
 		return "diff.db"
 	}
 	return self.File
 }
 
-func (self DiffDb) getTable() string {
+func (self *DiffDb) getTable() string {
 	if "" == self.Table {
 		return "DiffData"
 	}
