@@ -22,7 +22,6 @@ const (
 // arguments available
 var RuntimeArgs struct {
 	DatabaseLocation string
-	PrintVersion     bool
 	Verbose          bool
 }
 
@@ -46,7 +45,7 @@ func successHandler(msg string) {
 }
 
 func usage() {
-	fmt.Printf("%s %s\n\n", NAME, skeleton_db.VERSION)
+	fmt.Printf("%s %s\n\n", NAME, "0.0.2")
 	fmt.Printf("Usage:\n\t%s [options...] action key [action_args...]\n\n", BINARY)
 	fmt.Println(" * action:\tThe action to preform. Supported action(s): GET, SET, DEL")
 	fmt.Println(" * action_args:\tVariadic arguments provided to the requested action. Different actions require different arguments")
@@ -60,15 +59,8 @@ func main() {
 	// handle command line arguements
 	flag.Usage = usage
 	flag.StringVar(&RuntimeArgs.DatabaseLocation, "db", databaseFile, "location of database file")
-	flag.BoolVar(&RuntimeArgs.PrintVersion, "v", false, "version")
 	flag.BoolVar(&RuntimeArgs.Verbose, "verbose", false, "verbose")
 	flag.Parse()
-
-	// list version
-	if RuntimeArgs.PrintVersion {
-		fmt.Println("SkeletonDb ", skeleton_db.VERSION)
-		os.Exit(0)
-	}
 
 	// create database object
 	diffDb = skeleton_db.NewDiffDb(RuntimeArgs.DatabaseLocation)
