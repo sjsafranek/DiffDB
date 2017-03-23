@@ -1,6 +1,7 @@
 package diff_db
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -31,10 +32,6 @@ func (self DiffDb) Init() {
 	}
 }
 
-// func (self DiffDb) getBucketName() []byte {
-// 	return []byte(self.Table)
-// }
-
 func (self *DiffDb) Load(name string) ([]byte, error) {
 	name = strings.ToLower(name)
 	data, err := self.DB.Select(self.Table, name)
@@ -43,6 +40,9 @@ func (self *DiffDb) Load(name string) ([]byte, error) {
 
 func (self *DiffDb) Save(name string, data []byte) error {
 	err := self.DB.Insert(self.Table, name, data)
+
+	fmt.Println(err)
+
 	return err
 }
 
