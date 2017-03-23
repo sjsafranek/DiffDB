@@ -3,4 +3,4 @@
 pkg
 src
 bin
-skeleton-cli
+db-cli

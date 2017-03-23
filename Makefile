@@ -6,7 +6,7 @@
 ##======================================================================##
 
 SHELL=/bin/bash
-PROJECT_NAME = SkeletonDb
+PROJECT_NAME = DiffDB
 GPATH = $(shell pwd)
 
 .PHONY: fmt deps test install build scrape clean
