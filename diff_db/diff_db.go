@@ -1,7 +1,6 @@
 package diff_db
 
 import (
-	"fmt"
 	"strings"
 )
 
