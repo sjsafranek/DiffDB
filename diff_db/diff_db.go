@@ -22,14 +22,14 @@ func (self DiffDb) Init() {
 
 func (self DiffDb) getFile() {
 	if "" == self.File {
-		return = "diff.db"
+		return "diff.db"
 	}
 	return self.File
 }
 
 func (self DiffDb) getTable() {
 	if "" == self.Table {
-		return = "DiffData"
+		return "DiffData"
 	}
 	return self.Table
 }
