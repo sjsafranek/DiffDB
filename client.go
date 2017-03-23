@@ -9,13 +9,13 @@ import (
 )
 
 import (
+	"./diff_db"
 	"./diff_store"
-	"./skeleton_db"
 )
 
 const (
-	NAME   = "SkeletonDB Client"
-	BINARY = "skeleton_cli"
+	NAME   = "DiffDB Client"
+	BINARY = "diff_db_cli"
 )
 
 // RuntimeArgs contains all runtime
@@ -26,7 +26,7 @@ var RuntimeArgs struct {
 }
 
 var (
-	diffDb skeleton_db.DiffDb
+	diffDb diff_db.DiffDb
 )
 
 func errorHandler(err error) {
@@ -63,7 +63,7 @@ func main() {
 	flag.Parse()
 
 	// create database object
-	diffDb = skeleton_db.NewDiffDb(RuntimeArgs.DatabaseLocation)
+	diffDb = diff_db.NewDiffDb(RuntimeArgs.DatabaseLocation)
 
 	// get args
 	args := flag.Args()

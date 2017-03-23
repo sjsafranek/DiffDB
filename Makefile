@@ -12,19 +12,20 @@ GPATH = $(shell pwd)
 .PHONY: fmt deps test install build scrape clean
 
 install: fmt deps
-	@GOPATH=${GPATH} go build -o skeleton-cli client.go
+	@GOPATH=${GPATH} go build -o db-cli client.go
 
 build: fmt deps
-	@GOPATH=${GPATH} go build -o skeleton-cli client.go
+	@GOPATH=${GPATH} go build -o db-cli client.go
 
 deps:
 	mkdir -p "src"
 	mkdir -p "pkg"
 	@GOPATH=${GPATH} go get github.com/boltdb/bolt
 	@GOPATH=${GPATH} go get github.com/sergi/go-diff/diffmatchpatch
+	@GOPATH=${GPATH} go get github.com/sjsafranek/SkeletonDB
 
 fmt:
-	@GOPATH=${GPATH} gofmt -s -w skeleton_db
+	@GOPATH=${GPATH} gofmt -s -w diff_db
 	@GOPATH=${GPATH} gofmt -s -w diff_store
 	@GOPATH=${GPATH} gofmt -s -w client.go
 
