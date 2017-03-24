@@ -6,7 +6,7 @@ import (
 
 // DiffStore struct for storing diff data
 type DiffStore struct {
-	Name         string
+	// Name         string
 	CurrentValue string
 	Diffs        map[int64]string
 	Shards       map[int64]DiffShard

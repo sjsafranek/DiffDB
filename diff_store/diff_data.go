@@ -9,9 +9,9 @@ import (
 import "github.com/sergi/go-diff/diffmatchpatch"
 
 // NewDiffStore creates and returns DiffStore struct
-func NewDiffStore(name string) DiffStore {
+func NewDiffStore() DiffStore {
 	var ddata DiffStore
-	ddata.Name = name
+	// ddata.Name = name
 	ddata.CurrentValue = ""
 	ddata.Diffs = make(map[int64]string)
 	return ddata
@@ -165,7 +165,7 @@ func (self *DiffStore) GetPreviousByIndex(idx int) (string, error) {
 	return oldValue, err
 }
 
-// GetPreviousWithinRange returns text values within a given timestamp range
+// GetPreviousWithinRange returns text values within a given timestamp range.
 func (self *DiffStore) GetPreviousWithinTimestampRange(begin_timestamp int64, end_timestamp int64) (map[int64]string, error) {
 
 	// TODO:
