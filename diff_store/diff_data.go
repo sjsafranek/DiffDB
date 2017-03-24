@@ -103,7 +103,7 @@ func (self *DiffStore) Update(newText string) {
 	delta := dmp.DiffToDelta(diffs)
 	self.CurrentValue = newText
 	now := time.Now().UnixNano()
-	
+
 	if nil == self.Diffs {
 		self.Diffs = make(map[int64]string)
 	}

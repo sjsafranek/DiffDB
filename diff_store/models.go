@@ -4,6 +4,7 @@ import (
 	"sync"
 )
 
+// DiffStore struct for storing diff data
 type DiffStore struct {
 	Name         string
 	CurrentValue string
@@ -12,6 +13,7 @@ type DiffStore struct {
 	lock         sync.RWMutex
 }
 
+// DiffShard struct for storing pieces of diff data
 type DiffShard struct {
 	Name         string
 	CurrentValue string
