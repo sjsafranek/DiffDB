@@ -8,9 +8,7 @@ import (
 
 import "github.com/sergi/go-diff/diffmatchpatch"
 
-// @method 		NewDiffStore
-// @description Creates and returns DiffStore structs
-// @returns 	DiffStore
+// NewDiffStore creates and returns DiffStore struct
 func NewDiffStore(name string) DiffStore {
 	var ddata DiffStore
 	ddata.Name = name
@@ -19,9 +17,7 @@ func NewDiffStore(name string) DiffStore {
 	return ddata
 }
 
-// @method 		encode
-// @description encodes struct to json []byte
-// @returns 	[]byte, error
+// Encode marshals struct into json.
 func (self *DiffStore) Encode() ([]byte, error) {
 	enc, err := json.Marshal(self)
 	if err != nil {
@@ -30,10 +26,7 @@ func (self *DiffStore) Encode() ([]byte, error) {
 	return enc, nil
 }
 
-// @method 		decode
-// @description decodes json []btye to struct
-// @param		{[]byte} data to decode
-// @returns 	error
+// Decode unmarshals struct from json.
 func (self *DiffStore) Decode(data []byte) error {
 	err := json.Unmarshal(data, &self)
 	if err != nil {
@@ -42,10 +35,7 @@ func (self *DiffStore) Decode(data []byte) error {
 	return nil
 }
 
-// @method 		diffRebuildtexts
-// @description Builds text value from changes
-// @param		{[]diffmatchpatch.Diff} list of diff changes
-// @returns 	string, error
+// diffRebuildtexts rebuilds text value from list of diff changes.
 func (self *DiffStore) diffRebuildtexts(diffs []diffmatchpatch.Diff) []string {
 	text := []string{"", ""}
 	for _, diff := range diffs {
@@ -59,11 +49,7 @@ func (self *DiffStore) diffRebuildtexts(diffs []diffmatchpatch.Diff) []string {
 	return text
 }
 
-// @method 		rebuildTextsToDiffN
-// @description Builds text value from changes
-// @param		{int64} unix nano timestamp
-// @param		{[]int64} list of unix nano timestamps
-// @returns 	string, error
+// rebuildTextsToDiffN rebuilds text value from diff changes until timestamp is reached.
 func (self *DiffStore) rebuildTextsToDiffN(timestamp int64, snapshots []int64) (string, error) {
 	dmp := diffmatchpatch.New()
 	lastText := ""
@@ -87,9 +73,7 @@ func (self *DiffStore) rebuildTextsToDiffN(timestamp int64, snapshots []int64) (
 	return "", fmt.Errorf("Could not rebuild from diffs")
 }
 
-// @method 		Update
-// @description Updates value
-// @param		string
+// Update adds new text change.
 func (self *DiffStore) Update(newText string) {
 
 	// check for changes
@@ -112,16 +96,12 @@ func (self *DiffStore) Update(newText string) {
 	self.lock.RUnlock()
 }
 
-// @method 		GetCurrent
-// @description Returns current value
-// @return 		string
+// GetCurrent returns current text value.
 func (self *DiffStore) GetCurrent() string {
 	return self.CurrentValue
 }
 
-// @method 		GetSnapshots
-// @description Returns a list of UnixNano timestamps for snapshots
-// @return 		[]int64
+// GetSnapshots returns a list of UnixNano timestamps for snapshots.
 func (self *DiffStore) GetSnapshots() []int64 {
 	self.lock.Lock()
 	keys := make([]int64, 0, len(self.Diffs))
@@ -134,10 +114,7 @@ func (self *DiffStore) GetSnapshots() []int64 {
 	return keys
 }
 
-// @method 		GetPreviousByTimestamp
-// @description Returns value at given timestamp
-// @param		{int64}
-// @return 		string
+// GetPreviousByTimestamp returns text value at given timestamp.
 func (self *DiffStore) GetPreviousByTimestamp(timestamp int64) (string, error) {
 
 	// check inputs
@@ -163,10 +140,7 @@ func (self *DiffStore) GetPreviousByTimestamp(timestamp int64) (string, error) {
 	return oldValue, err
 }
 
-// @method 		GetPreviousByIndex
-// @description Returns value at given index
-// @param		{int}
-// @return 		string
+// GetPreviousByIndex returns value at given index.
 func (self *DiffStore) GetPreviousByIndex(idx int) (string, error) {
 
 	// check inputs
@@ -191,17 +165,17 @@ func (self *DiffStore) GetPreviousByIndex(idx int) (string, error) {
 	return oldValue, err
 }
 
-// @method 		GetPreviousWithinRange
-// @description Returns value at given timestamp
-// @param		{int64} begin_timestamp
-// @param		{int64} end_timestamp
-// @return 		string
+// GetPreviousWithinRange returns text values within a given timestamp range
 func (self *DiffStore) GetPreviousWithinTimestampRange(begin_timestamp int64, end_timestamp int64) (map[int64]string, error) {
 
 	// TODO:
 	// - Calculate old values i one pass
 
 	values := make(map[int64]string)
+
+	if begin_timestamp > end_timestamp {
+		return values, fmt.Errorf("begin_timestamp must be greater than end_timestamp")
+	}
 
 	// check inputs
 	if 0 > begin_timestamp || 0 > end_timestamp {
