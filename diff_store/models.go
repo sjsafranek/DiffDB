@@ -15,7 +15,7 @@ type DiffStore struct {
 
 // DiffShard struct for storing pieces of diff data
 type DiffShard struct {
-	Name         string
+	// Name         string
 	CurrentValue string
 	Diffs        map[int64]string
 	lock         sync.RWMutex
