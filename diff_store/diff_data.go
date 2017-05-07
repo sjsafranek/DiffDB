@@ -153,9 +153,12 @@ func (self *DiffStore) GetPreviousByTimestamp(timestamp int64) (string, error) {
 		}
 	}
 
+	fmt.Println(ts, timestamp, snapshots)
+
 	// ts := self.closestSnapshotToTimestamp(timestamp)
 
 	// use timestamp to find value
+	// oldValue, err := self.rebuildTextsToDiffN(ts, self.GetSnapshots())
 	oldValue, err := self.rebuildTextsToDiffN(ts, snapshots)
 	return oldValue, err
 }
