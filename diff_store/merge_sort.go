@@ -1,4 +1,4 @@
-package diff_store
+package diffstore
 
 // MergeInt64 merges two arrays of int64 into a single array.
 func MergeInt64(l, r []int64) []int64 {

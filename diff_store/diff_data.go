@@ -1,4 +1,4 @@
-package diff_store
+package diffstore
 
 import (
 	"encoding/json"
@@ -11,7 +11,6 @@ import "github.com/sergi/go-diff/diffmatchpatch"
 // NewDiffStore creates and returns DiffStore struct
 func NewDiffStore() DiffStore {
 	var ddata DiffStore
-	// ddata.Name = name
 	ddata.CurrentValue = ""
 	ddata.Diffs = make(map[int64]string)
 	return ddata
@@ -114,30 +113,56 @@ func (self *DiffStore) GetSnapshots() []int64 {
 	return keys
 }
 
-// GetPreviousByTimestamp returns text value at given timestamp.
-func (self *DiffStore) GetPreviousByTimestamp(timestamp int64) (string, error) {
-
-	// check inputs
-	if 0 > timestamp {
-		return "", fmt.Errorf("Timestamps most be positive integer")
-	}
-
-	// get change snapshot
+func (self *DiffStore) closestSnapshotToTimestamp(timestamp int64) int64 {
 	snapshots := self.GetSnapshots()
 
 	// default to first value
 	var ts int64 = snapshots[0]
+	if 0 > timestamp {
+		return ts
+	}
 
-	// find timestamp
+	// find closest timestamp
 	for _, snapshot := range snapshots {
 		if timestamp >= snapshot && ts < snapshot {
 			ts = snapshot
 		}
 	}
 
+	return ts
+}
+
+// GetPreviousByTimestamp returns text value at given timestamp.
+func (self *DiffStore) GetPreviousByTimestamp(timestamp int64) (string, error) {
+
+	// check inputs
+	// if 0 > timestamp {
+	// 	return "", fmt.Errorf("Timestamps most be positive integer")
+	// }
+
+	// // get change snapshot
+	// snapshots := self.GetSnapshots()
+	//
+	// // default to first value
+	// var ts int64 = snapshots[0]
+	//
+	// // find timestamp
+	// for _, snapshot := range snapshots {
+	// 	if timestamp >= snapshot && ts < snapshot {
+	// 		ts = snapshot
+	// 	}
+	// }
+
+	ts := self.closestSnapshotToTimestamp(timestamp)
+
 	// use timestamp to find value
-	oldValue, err := self.rebuildTextsToDiffN(ts, snapshots)
+	oldValue, err := self.rebuildTextsToDiffN(ts, self.GetSnapshots())
 	return oldValue, err
+}
+
+// length returns number of snapshots
+func (self *DiffStore) length() int {
+	return len(self.GetSnapshots())
 }
 
 // GetPreviousByIndex returns value at given index.
@@ -148,16 +173,14 @@ func (self *DiffStore) GetPreviousByIndex(idx int) (string, error) {
 		return "", fmt.Errorf("Index most be positive integer")
 	}
 
-	// get change snapshots
-	snapshots := self.GetSnapshots()
-
-	// if index greater than length of snapshot
+	// if index greater than length of snapshots
 	// default to last snapshot
-	if idx > len(snapshots)-1 {
-		idx = len(snapshots) - 1
+	if idx > self.length()-1 {
+		idx = self.length() - 1
 	}
 
 	// use index to find timestamp
+	snapshots := self.GetSnapshots()
 	var ts int64 = snapshots[idx]
 
 	// use timestamp to find value

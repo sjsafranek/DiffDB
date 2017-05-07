@@ -1,4 +1,4 @@
-package diff_store
+package diffstore
 
 import (
 	"sync"

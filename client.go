@@ -92,7 +92,7 @@ func main() {
 	switch action {
 	// get value of key
 	case "GET":
-		var ddata diff_store.DiffStore
+		var ddata diffstore.DiffStore
 
 		data, err := diffDb.Load(key)
 		if nil != err {
@@ -177,12 +177,12 @@ func main() {
 		}
 
 		// load key
-		var ddata diff_store.DiffStore
+		var ddata diffstore.DiffStore
 		data, err := diffDb.Load(key)
 		if nil != err {
 			if err.Error() == "Not found" {
 				// create new diffstore if key not found in database
-				ddata = diff_store.NewDiffStore(key)
+				ddata = diffstore.NewDiffStore(key)
 			} else {
 				errorHandler(err)
 			}

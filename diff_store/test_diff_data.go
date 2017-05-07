@@ -1,1 +1,1 @@
-package diff_store
+package diffstore
