@@ -148,7 +148,8 @@ func (self *DiffStore) GetPreviousByTimestamp(timestamp int64) (string, error) {
 
 	// find timestamp
 	for _, snapshot := range snapshots {
-		if timestamp >= snapshot && ts < snapshot {
+		// if timestamp >= snapshot && ts < snapshot {
+		if timestamp >= snapshot {
 			ts = snapshot
 		}
 	}
