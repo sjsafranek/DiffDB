@@ -113,24 +113,24 @@ func (self *DiffStore) GetSnapshots() []int64 {
 	return keys
 }
 
-// func (self *DiffStore) closestSnapshotToTimestamp(timestamp int64) int64 {
-// 	snapshots := self.GetSnapshots()
-//
-// 	// default to first value
-// 	var ts int64 = snapshots[0]
-// 	if 0 > timestamp {
-// 		return ts
-// 	}
-//
-// 	// find closest timestamp
-// 	for _, snapshot := range snapshots {
-// 		if timestamp >= snapshot && ts < snapshot {
-// 			ts = snapshot
-// 		}
-// 	}
-//
-// 	return ts
-// }
+func (self *DiffStore) ClosestSnapshotToTimestamp(timestamp int64) int64 {
+	snapshots := self.GetSnapshots()
+
+	// default to first value
+	var ts int64 = snapshots[0]
+	if 0 > timestamp {
+		return ts
+	}
+
+	// find closest timestamp
+	for _, snapshot := range snapshots {
+		if timestamp >= snapshot && ts < snapshot {
+			ts = snapshot
+		}
+	}
+
+	return ts
+}
 
 // GetPreviousByTimestamp returns text value at given timestamp.
 func (self *DiffStore) GetPreviousByTimestamp(timestamp int64) (string, error) {
@@ -153,9 +153,9 @@ func (self *DiffStore) GetPreviousByTimestamp(timestamp int64) (string, error) {
 		}
 	}
 
-	fmt.Println(ts, timestamp, snapshots)
+	// fmt.Println(ts, timestamp, snapshots)
 
-	// ts := self.closestSnapshotToTimestamp(timestamp)
+	// ts := self.ClosestSnapshotToTimestamp(timestamp)
 
 	// use timestamp to find value
 	// oldValue, err := self.rebuildTextsToDiffN(ts, self.GetSnapshots())
