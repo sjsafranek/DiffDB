@@ -6,15 +6,18 @@ import (
 
 import "github.com/sjsafranek/SkeletonDB"
 
+func New(db_file string) DiffDb {
+	db := DiffDb{File: db_file}
+	db.Init()
+	return db
+}
+
 func (self *DiffDb) Init() {
 
 	self.DB = skeleton.Database{File: self.getFile()}
 	self.DB.Init()
 
-	conn := self.DB.Connect()
-	defer conn.Close()
-
-	err := self.DB.CreateTable(conn, self.getTable())
+	err := self.DB.CreateTable(self.getTable())
 	if nil != err {
 		panic(err)
 	}

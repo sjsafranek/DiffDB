@@ -9,8 +9,8 @@ import (
 )
 
 import (
-	"./diff_db"
-	"./diff_store"
+	"github.com/sjsafranek/DiffDB/diff_db"
+	"github.com/sjsafranek/DiffStore"
 )
 
 const (
@@ -63,7 +63,7 @@ func main() {
 	flag.Parse()
 
 	// create database object
-	diffDb = diff_db.NewDiffDb(RuntimeArgs.DatabaseLocation)
+	diffDb = diff_db.New(RuntimeArgs.DatabaseLocation)
 
 	// get args
 	args := flag.Args()
@@ -182,7 +182,7 @@ func main() {
 		if nil != err {
 			if err.Error() == "Not found" {
 				// create new diffstore if key not found in database
-				ddata = diffstore.NewDiffStore(key)
+				ddata = diffstore.New()
 			} else {
 				errorHandler(err)
 			}
@@ -198,7 +198,7 @@ func main() {
 		if nil != err {
 			errorHandler(err)
 		}
-		diffDb.Save(ddata.Name, enc)
+		diffDb.Save(key, enc)
 
 		// print result
 		successHandler(ddata.GetCurrent())
